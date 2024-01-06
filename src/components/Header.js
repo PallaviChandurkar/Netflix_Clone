@@ -1,9 +1,12 @@
-import React,{ useEffect } from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "../utiles/firebase";
 import { useDispatch, useSelector } from "react-redux";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { addUser, removeUser } from "../utiles/userSlice";
+import { CHOOSE_LANG, LOGO } from "../utiles/constants";
+import { toggleGptSearchPage } from "../utiles/gptSlice";
+import { changeLanguage } from "../utiles/configSlice";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -11,18 +14,14 @@ const Header = () => {
   const user = useSelector((store) => store.user);
   const handleSignOut = () => {
     signOut(auth)
-      .then(() => {
-        // Sign-out successful.
-        // navigate("/");
-      })
+      .then(() => {})
       .catch((error) => {
-        // An error happened.
         navigate("/error");
       });
   };
 
   useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
+    const unSubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         const { uid, email, displayName, photoURL } = user;
         dispatch(
@@ -35,35 +34,47 @@ const Header = () => {
         );
         navigate("/browse");
       } else {
-        // User is signed out
         dispatch(removeUser());
         navigate("/");
       }
     });
+
+    return () => unSubscribe();
   }, []);
 
+  const searchbar = useSelector((store)=>store.gpt.showGptSearchPage)
+
+  const handleGptSearchClick = () => {
+    dispatch(toggleGptSearchPage());
+  }
+
+  const handleLangClick = (e) => {
+    dispatch(changeLanguage(e.target.value));
+  }
+
   return (
-    <div className="absolute w-screen z-10 bg-gradient-to-b from-black flex justify-between">
-      <img
-        className="w-52 py-5 px-8"
-        src="https://upload.wikimedia.org/wikipedia/commons/7/7a/Logonetflix.png"
-        alt="logo"
-      />
-      {user && (<div className="flex p-2">
-        <img
-          alt="usericon"
-          className="w-12 h-12"
-          src={user?.photoURL}
-        />
-        <button onClick={handleSignOut} className="font-bold text-white">
-          Sign Out
-        </button>
-      </div>
+    <div className="absolute w-screen z-10 bg-black md:bg-gradient-to-b from-black md:flex justify-between">
+      <img className="w-36 py-4 mx-auto md:mx-0 md:w-52 md:py-5 md:px-8" src={LOGO} alt="logo" />
+      {user && (
+        <div className="flex p-3 md:p-2">
+          {
+            searchbar &&  <select className="cursor-pointer" onChange={handleLangClick}>
+            {
+              CHOOSE_LANG.map((lang) =>  <option key={lang.identifier} value={lang.identifier}>{lang.name}</option>)
+            }
+            </select>
+          }
+          <button onClick={handleGptSearchClick} className="bg-red-700 text-white mx-4 px-3 rounded-lg">
+            {searchbar ? "Home Page" : "Gpt Search"}
+          </button>
+          <img alt="usericon" className="w-12 h-12" src={user?.photoURL} />
+          <button onClick={handleSignOut} className="mx-3 md:mx-0 font-bold text-white">
+            Sign Out
+          </button>
+        </div>
       )}
     </div>
   );
 };
 
 export default Header;
-
-// src="https://occ-0-3216-2164.1.nflxso.net/dnm/api/v6/vN7bi_My87NPKvsBoib006Llxzg/AAAABTZ2zlLdBVC05fsd2YQAR43J6vB1NAUBOOrxt7oaFATxMhtdzlNZ846H3D8TZzooe2-FT853YVYs8p001KVFYopWi4D4NXM.png?r=229"

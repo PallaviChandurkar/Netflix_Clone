@@ -7,14 +7,13 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { auth } from "../utiles/firebase";
-// import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { addUser } from "../utiles/userSlice";
+import { BG_URL, USER_AVATAR } from "../utiles/constants";
 
 const Login = () => {
   const [signInForm, setSignInForm] = useState(true);
   const [errorMessage, setErrorMessage] = useState(null);
-  // const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const name = useRef(null);
@@ -26,32 +25,23 @@ const Login = () => {
   };
 
   const handleButtonClick = () => {
-    //validate the form data
-    //checkValidData;
-    //console.log(email.current.value);
-    //console.log(password.current.value);
     const message = checkValidData(email.current.value, password.current.value);
-    //console.log(message);
     setErrorMessage(message);
     if (message) return;
 
     if (!signInForm) {
-      // Sign Up Logic
       createUserWithEmailAndPassword(
         auth,
         email.current.value,
         password.current.value
       )
         .then((userCredential) => {
-          // Signed up
           const user = userCredential.user;
           updateProfile(user, {
             displayName: name.current.value,
-            photoURL: "https://e0.pxfuel.com/wallpapers/900/942/desktop-wallpaper-cartoon-cartoon-new-cartoon-boy-cartoon-letest-cartoon-cute-cartoon-cute-bay-cartoon-kartoon-thumbnail.jpg",
+            photoURL: USER_AVATAR,
           })
             .then(() => {
-              // Profile updated!
-              // ...
               const { uid, email, displayName, photoURL } = auth.currentUser;
               dispatch(
                 addUser({
@@ -61,37 +51,23 @@ const Login = () => {
                   photoURL: photoURL,
                 })
               );
-              // navigate("/browse");
             })
             .catch((error) => {
-              // An error occurred
-              // ...
               setErrorMessage(error.message);
             });
-
-          // console.log(user);
-          //navigate("/browse");
-          // ...
         })
         .catch((error) => {
           const errorCode = error.code;
           const errorMessage = error.message;
           setErrorMessage(errorCode + "-" + errorMessage);
-          // ..
         });
     } else {
-      // Sign In Logic
       signInWithEmailAndPassword(
         auth,
         email.current.value,
         password.current.value
       )
         .then((userCredential) => {
-          // Signed in
-          //const user = userCredential.user;
-          // console.log(user);
-          //navigate("/browse");
-          // ...
         })
         .catch((error) => {
           const errorCode = error.code;
@@ -106,13 +82,14 @@ const Login = () => {
       <Header />
       <div className="absolute">
         <img
-          src="https://assets.nflxext.com/ffe/siteui/vlv3/b4c7f092-0488-48b7-854d-ca055a84fb4f/5b22968d-b94f-44ec-bea3-45dcf457f29e/IN-en-20231204-popsignuptwoweeks-perspective_alpha_website_large.jpg"
+          className="h-screen object-cover md:w-screen"
+          src={BG_URL}
           alt="logo"
         />
       </div>
       <form
         onSubmit={(e) => e.preventDefault()}
-        className="absolute w-3/12 bg-black mx-auto mt-44 right-0 left-0 my-5 p-10 text-white bg-opacity-80 rounded-lg"
+        className="absolute w-3/2 md:w-8/12 lg:w-3/12 bg-black md:mx-auto mt-44 right-0 mx-4 left-0 my-5 p-8 text-white bg-opacity-80 rounded-lg"
         autoComplete="off"
       >
         <h1 className="my-3 text-3xl font-semibold">
