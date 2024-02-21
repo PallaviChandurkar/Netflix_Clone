@@ -100,20 +100,20 @@ const Login = () => {
             ref={name}
             className="w-full p-3 my-3 rounded-md bg-[#333]"
             type="text"
-            placeholder="FullName"
+            placeholder="Please enter your name"
           />
         )}
         <input
           ref={email}
           className="w-full p-3 my-3 rounded-md bg-[#333]"
           type="text"
-          placeholder="email"
+          placeholder="Please enter your email"
         />
         <input
           ref={password}
           className="w-full p-3 my-3 rounded-md bg-[#333]"
           type="password"
-          placeholder="password"
+          placeholder="Enter your password"
         />
         <p className="text-red-600">{errorMessage}</p>
         <button
